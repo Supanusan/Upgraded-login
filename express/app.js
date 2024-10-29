@@ -12,7 +12,7 @@ app.use(cors());
 
 
 configDotenv()
-app.use(express.json({ extended: false }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }))
 
 const connect = async () => {
@@ -36,7 +36,7 @@ app.post("/create", async (req, res) => {
     console.log(username, password);
 
     if (!username || !password) {
-        res.status(400).json({ message: "username and password required" })
+        res.status(400).json("username and password required")
     }
     const existing = await user.findOne({ username })
     if (existing) {
@@ -51,7 +51,7 @@ app.post("/create", async (req, res) => {
         }
 
     } catch (error) {
-        return res.status(500).json({ message: error.message })
+        return res.status(500).json(error.message)
     }
 
 })
