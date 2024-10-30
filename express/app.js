@@ -3,6 +3,7 @@ const express = require("express");
 const { default: mongoose } = require("mongoose");
 const app = express();
 const path = require("path");
+const bcrypt = require('bcrypt');
 const port = 5000;
 const cors = require("cors");
 const { product, user } = require("./schema/account");
@@ -36,7 +37,7 @@ app.post("/create", async (req, res) => {
     console.log(username, password);
 
     if (!username || !password) {
-        res.status(400).json("username and password required")
+        return res.status(400).json("username and password required")
     }
     const existing = await user.findOne({ username })
     if (existing) {
@@ -44,7 +45,12 @@ app.post("/create", async (req, res) => {
     }
 
     try {
-        const User = new user({ username, password })
+        // Hashing the password
+        const hashedPassword = await bcrypt.hash(password, 10)
+        console.log(hashedPassword)
+        const Hpassword = hashedPassword
+
+        const User = new user({ username, Hpassword })
         const saved = await User.save();
         if (saved) {
             res.status(201).json("Successfully Created...")
@@ -62,14 +68,17 @@ app.post("/login", async (req, res) => {
     console.log(username, password);
 
     if (!username || !password) {
-        return res.json("username and password required")
+        return res.status(400).json("username and password required")
     }
     try {
         const User = await user.findOne({ username })
         if (!User) {
             return res.status(404).json("User not found Create a account...!")
         }
-        if (password === User.password) {
+
+        const isMatch = await bcrypt.compare(password, User.Hpassword)
+
+        if (isMatch) {
             return res.status(200).json("Successfully login")
         } else {
             return res.status(401).json("password not correct")

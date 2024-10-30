@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const schema = new mongoose.Schema({
     "username": String,
-    "password": String
+    "Hpassword": String
 })
 
 const user = mongoose.model("userpassword", schema)
